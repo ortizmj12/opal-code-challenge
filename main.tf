@@ -20,10 +20,10 @@ variable "secret_key" {
 }
 
 provider "aws" {
-  region                  = "${var.AWS_REGION}"
-  profile                 = "default"
-  access_key              = "${var.access_key}"
-  secret_key              = "${var.secret_key}"
+  region     = "${var.AWS_REGION}"
+  profile    = "default"
+  access_key = "${var.access_key}"
+  secret_key = "${var.secret_key}"
 }
 
 resource "aws_vpc" "main" {
