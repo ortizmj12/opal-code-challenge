@@ -1,14 +1,14 @@
 variable "OPAL_ENV" {
   description = "The env this config will deploy to. Should be defined in the environment variable TF_VAR_OPAL_ENV."
-  default = "internal"
+  default     = "internal"
 }
 variable "OPAL_AMI" {
   description = "The AMI used by the instance. Should be defined in the environment variable TF_VAR_OPAL_AMI."
-  default = "ami-a042f4d8" #Centos 7 in us-west-2
+  default     = "ami-a042f4d8" #Centos 7 in us-west-2
 }
 variable "AWS_REGION" {
   description = "The region to deploy to."
-  default = "us-west-2"
+  default     = "us-west-2"
 }
 
 variable "access_key" {
@@ -20,11 +20,11 @@ variable "secret_key" {
 }
 
 provider "aws" {
-  region     = "${var.AWS_REGION}"
+  region                  = "${var.AWS_REGION}"
   shared_credentials_file = "~/.aws/credentials"
-  profile = "default"
-  access_key = "${var.access_key}"
-  secret_key = "${var.secret_key}"
+  profile                 = "default"
+  access_key              = "${var.access_key}"
+  secret_key              = "${var.secret_key}"
 }
 
 resource "aws_vpc" "main" {
@@ -36,7 +36,7 @@ resource "aws_vpc" "main" {
 
 resource "aws_eip" "main-eip" {
   instance = "${aws_instance.ec2-instance-001.id}"
-  vpc = true
+  vpc      = true
 }
 
 resource "aws_internet_gateway" "main-gw" {
@@ -52,7 +52,7 @@ resource "aws_route_table" "main-route-table" {
 }
 
 resource "aws_route_table_association" "route-table-subnet-association" {
-  subnet_id = "${aws_subnet.main-subnet.id}"
+  subnet_id      = "${aws_subnet.main-subnet.id}"
   route_table_id = "${aws_route_table.main-route-table.id}"
 }
 
@@ -62,20 +62,20 @@ resource "aws_subnet" "main-subnet" {
 }
 
 resource "aws_security_group" "allow-ssh" {
-  name = "allow_ssh"
+  name        = "allow_ssh"
   description = "Allow SSH inbound traffic"
-  vpc_id = "${aws_vpc.main.id}"
+  vpc_id      = "${aws_vpc.main.id}"
   ingress {
     cidr_blocks = ["0.0.0.0/0"]
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
   }
   egress {
     cidr_blocks = ["0.0.0.0/0"]
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
   }
   tags = {
     Name = "allow_ssh"
@@ -83,10 +83,10 @@ resource "aws_security_group" "allow-ssh" {
 }
 
 resource "aws_instance" "ec2-instance-001" {
-  ami           = "${var.OPAL_AMI}"
-  instance_type = "t2.micro"
+  ami             = "${var.OPAL_AMI}"
+  instance_type   = "t2.micro"
   security_groups = ["${aws_security_group.allow_ssh.id}"]
-  subnet_id = "${aws_subnet.main.id}"
+  subnet_id       = "${aws_subnet.main.id}"
   tags = {
     Name = "${var.OPAL_ENV}"
   }
