@@ -28,14 +28,10 @@ provider "aws" {
 
 resource "aws_vpc" "main" {
   cidr_block = "10.0.0.0/16"
+  enable_dns_hostnames = true
   tags = {
     Name = "${var.OPAL_ENV}"
   }
-}
-
-resource "aws_eip" "main-eip" {
-  instance = "${aws_instance.ec2-instance-001.id}"
-  vpc      = true
 }
 
 resource "aws_internet_gateway" "main-gw" {
@@ -85,10 +81,17 @@ resource "aws_instance" "ec2-instance-001" {
   ami             = "${var.OPAL_AMI}"
   instance_type   = "t2.micro"
   security_groups = ["${aws_security_group.allow_ssh.id}"]
-  subnet_id       = "${aws_subnet.main.id}"
+  subnet_id       = "${aws_subnet.main-subnet.id}"
+  depends_on = ["aws_internet_gateway.main-gw"]
   tags = {
     Name = "${var.OPAL_ENV}"
   }
+}
+
+resource "aws_eip" "main-eip" {
+  instance = "${aws_instance.ec2-instance-001.id}"
+  vpc      = true
+  depends_on = ["aws_internet_gateway.main-gw"]
 }
 
 output "ec2-instance-001-tag-Name" {
@@ -96,7 +99,7 @@ output "ec2-instance-001-tag-Name" {
 }
 
 output "ec2-instance-001-public-ip" {
-  value = "${aws_instance.ec2-instance-001.public_ip}"
+  value = "${aws_eip.main-eip.public_ip}"
 }
 
 output "public-subnet-id" {
