@@ -27,7 +27,7 @@ provider "aws" {
 }
 
 resource "aws_vpc" "main" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
   tags = {
     Name = "${var.OPAL_ENV}"
@@ -46,14 +46,14 @@ resource "aws_route_table" "main-route-table" {
   }
 }
 
-resource "aws_route_table_association" "route-table-subnet-association" {
-  subnet_id      = "${aws_subnet.main-subnet.id}"
-  route_table_id = "${aws_route_table.main-route-table.id}"
-}
-
 resource "aws_subnet" "main-subnet" {
   vpc_id     = "${aws_vpc.main.id}"
   cidr_block = "${aws_vpc.main.cidr_block}"
+}
+
+resource "aws_route_table_association" "route-table-subnet-association" {
+  subnet_id      = "${aws_subnet.main-subnet.id}"
+  route_table_id = "${aws_route_table.main-route-table.id}"
 }
 
 resource "aws_security_group" "allow-ssh" {
@@ -82,15 +82,15 @@ resource "aws_instance" "ec2-instance-001" {
   instance_type   = "t2.micro"
   security_groups = ["${aws_security_group.allow_ssh.id}"]
   subnet_id       = "${aws_subnet.main-subnet.id}"
-  depends_on = ["aws_internet_gateway.main-gw"]
+  depends_on      = ["aws_internet_gateway.main-gw"]
   tags = {
     Name = "${var.OPAL_ENV}"
   }
 }
 
 resource "aws_eip" "main-eip" {
-  instance = "${aws_instance.ec2-instance-001.id}"
-  vpc      = true
+  instance   = "${aws_instance.ec2-instance-001.id}"
+  vpc        = true
   depends_on = ["aws_internet_gateway.main-gw"]
 }
 
